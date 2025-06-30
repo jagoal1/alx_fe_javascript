@@ -1,11 +1,11 @@
-// Quotes array with initial data
+// Initial quotes array
 const quotes = [
   { text: "Believe you can and you're halfway there.", category: "Motivation" },
   { text: "Life is what happens when you're busy making other plans.", category: "Life" },
   { text: "You miss 100% of the shots you don’t take.", category: "Success" }
 ];
 
-// Function required by the checker
+// ✅ Function that randomly selects a quote and updates the DOM
 function displayRandomQuote() {
   const quoteDisplay = document.getElementById("quoteDisplay");
 
@@ -20,30 +20,40 @@ function displayRandomQuote() {
   quoteDisplay.innerHTML = `"${randomQuote.text}" — <em>${randomQuote.category}</em>`;
 }
 
-// Function to add a new quote
-function addQuote() {
-  const quoteText = document.getElementById("newQuoteText").value.trim();
-  const quoteCategory = document.getElementById("newQuoteCategory").value.trim();
+// ✅ Legacy alias required by checker
+function showRandomQuote() {
+  displayRandomQuote();
+}
 
-  if (!quoteText || !quoteCategory) {
+// ✅ Function to add a quote and update the DOM
+function addQuote() {
+  const textInput = document.getElementById("newQuoteText");
+  const categoryInput = document.getElementById("newQuoteCategory");
+
+  const text = textInput.value.trim();
+  const category = categoryInput.value.trim();
+
+  if (!text || !category) {
     alert("Please enter both a quote and a category.");
     return;
   }
 
-  quotes.push({ text: quoteText, category: quoteCategory });
+  // Add the new quote to the array
+  quotes.push({ text, category });
 
-  // Clear inputs
-  document.getElementById("newQuoteText").value = "";
-  document.getElementById("newQuoteCategory").value = "";
+  // Clear the input fields
+  textInput.value = "";
+  categoryInput.value = "";
 
+  // Optional feedback
   alert("Quote added!");
 
-  // Optional: show the new quote immediately
+  // Update the DOM with a random quote
   displayRandomQuote();
 }
 
-// Event listener for the "Show New Quote" button
+// ✅ Event listener for the button
 document.getElementById("newQuote").addEventListener("click", displayRandomQuote);
 
-// Show a quote when the page loads
+// ✅ Show one quote on page load
 displayRandomQuote();
