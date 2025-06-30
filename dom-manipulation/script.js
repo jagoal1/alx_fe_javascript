@@ -34,7 +34,8 @@ async function syncQuotes() {
   });
 
   if (response.ok) {
-    showSyncNotification("Quotes synced to server successfully.");
+    showSyncNotification("Quotes synced with server!");
+
   } else {
     showSyncNotification("Failed to sync quotes.");
   }
