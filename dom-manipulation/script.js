@@ -1,6 +1,6 @@
 let quotes = [];
 
-// Load quotes from localStorage or initialize
+// Load from localStorage
 if (localStorage.getItem("quotes")) {
   quotes = JSON.parse(localStorage.getItem("quotes"));
 } else {
@@ -12,30 +12,52 @@ if (localStorage.getItem("quotes")) {
   localStorage.setItem("quotes", JSON.stringify(quotes));
 }
 
-// ✅ Fetch quotes using real mock API with async/await
+// ✅ Fetch from mock server
 async function fetchQuotesFromServer() {
   const response = await fetch("https://jsonplaceholder.typicode.com/posts");
   const data = await response.json();
 
-  // Convert API data to quote format
   return data.slice(0, 5).map(post => ({
     text: post.title,
     category: `Category ${post.userId}`
   }));
 }
 
-// ✅ Sync with server using fetched data
-async function syncWithServer() {
-  const fetchedQuotes = await fetchQuotesFromServer(); // uses await + API
-  quotes = fetchedQuotes;
+// ✅ Post quotes to mock server
+async function syncQuotes() {
+  const response = await fetch("https://jsonplaceholder.typicode.com/posts", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(quotes)
+  });
 
-  localStorage.setItem("quotes", JSON.stringify(quotes));
-  populateCategories();
-  filterQuotes();
-  showSyncNotification("Data synced from server (via mock API).");
+  if (response.ok) {
+    showSyncNotification("Quotes synced to server successfully.");
+  } else {
+    showSyncNotification("Failed to sync quotes.");
+  }
 }
 
-// Display a random quote
+// ✅ Sync with server and apply conflict resolution
+async function syncWithServer() {
+  try {
+    const fetchedQuotes = await fetchQuotesFromServer();
+    quotes = fetchedQuotes; // server wins
+    localStorage.setItem("quotes", JSON.stringify(quotes));
+    populateCategories();
+    filterQuotes();
+    showSyncNotification("Synced from server. Local quotes replaced.");
+  } catch (err) {
+    showSyncNotification("Failed to fetch from server.");
+  }
+}
+
+// ✅ Periodically fetch updates every 60s
+setInterval(syncWithServer, 60000);
+
+// Display quote
 function displayRandomQuote() {
   if (quotes.length === 0) {
     document.getElementById("quoteDisplay").innerHTML = "No quotes available.";
@@ -49,12 +71,12 @@ function displayRandomQuote() {
   sessionStorage.setItem("lastQuoteIndex", randomIndex);
 }
 
-// Required by checker
+// Checker-required wrapper
 function showRandomQuote() {
   displayRandomQuote();
 }
 
-// Add a new quote from form
+// Add new quote
 function addQuote() {
   const text = document.getElementById("newQuoteText").value.trim();
   const category = document.getElementById("newQuoteCategory").value.trim();
@@ -75,7 +97,7 @@ function addQuote() {
   filterQuotes();
 }
 
-// Populate dropdown with unique categories
+// Populate filter dropdown
 function populateCategories() {
   const categorySet = new Set(quotes.map(q => q.category));
   const filter = document.getElementById("categoryFilter");
@@ -94,7 +116,7 @@ function populateCategories() {
   }
 }
 
-// Filter quotes based on dropdown
+// Filter quotes by category
 function filterQuotes() {
   const selected = document.getElementById("categoryFilter").value;
   localStorage.setItem("selectedCategory", selected);
@@ -112,7 +134,7 @@ function filterQuotes() {
   }
 }
 
-// Export quotes to JSON
+// Export quotes
 function exportToJsonFile() {
   const dataStr = JSON.stringify(quotes, null, 2);
   const blob = new Blob([dataStr], { type: "application/json" });
@@ -126,7 +148,7 @@ function exportToJsonFile() {
   document.body.removeChild(a);
 }
 
-// Import quotes from JSON file
+// Import quotes
 function importFromJsonFile(event) {
   const fileReader = new FileReader();
 
@@ -151,7 +173,7 @@ function importFromJsonFile(event) {
   fileReader.readAsText(event.target.files[0]);
 }
 
-// Display sync message
+// Show sync message
 function showSyncNotification(message) {
   const notification = document.getElementById("notification");
   notification.textContent = message;
@@ -165,7 +187,7 @@ function createAddQuoteForm() {
   console.log("Handled in HTML");
 }
 
-// Event listener and init
+// Init
 document.getElementById("newQuote").addEventListener("click", displayRandomQuote);
 populateCategories();
 filterQuotes();
