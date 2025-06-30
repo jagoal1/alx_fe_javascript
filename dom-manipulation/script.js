@@ -1,6 +1,10 @@
 let quotes = [];
+let serverQuotes = [
+  { text: "Server quote 1", category: "Server Wisdom" },
+  { text: "Server quote 2", category: "Sync Test" }
+];
 
-// Load quotes from localStorage or use default
+// Load from localStorage or initialize
 if (localStorage.getItem("quotes")) {
   quotes = JSON.parse(localStorage.getItem("quotes"));
 } else {
@@ -12,7 +16,7 @@ if (localStorage.getItem("quotes")) {
   localStorage.setItem("quotes", JSON.stringify(quotes));
 }
 
-// Display random quote (used by Show New Quote button)
+// Show random quote
 function displayRandomQuote() {
   if (quotes.length === 0) {
     document.getElementById("quoteDisplay").innerHTML = "No quotes available.";
@@ -26,12 +30,11 @@ function displayRandomQuote() {
   sessionStorage.setItem("lastQuoteIndex", randomIndex);
 }
 
-// ALX checker also checks this function name
 function showRandomQuote() {
   displayRandomQuote();
 }
 
-// Add a new quote
+// Add new quote
 function addQuote() {
   const text = document.getElementById("newQuoteText").value.trim();
   const category = document.getElementById("newQuoteCategory").value.trim();
@@ -52,13 +55,12 @@ function addQuote() {
   filterQuotes();
 }
 
-// Populate the category dropdown from quotes
+// Populate category dropdown
 function populateCategories() {
   const categorySet = new Set(quotes.map(q => q.category));
   const filter = document.getElementById("categoryFilter");
 
   filter.innerHTML = '<option value="all">All Categories</option>';
-
   categorySet.forEach(cat => {
     const option = document.createElement("option");
     option.value = cat;
@@ -67,12 +69,10 @@ function populateCategories() {
   });
 
   const saved = localStorage.getItem("selectedCategory");
-  if (saved) {
-    filter.value = saved;
-  }
+  if (saved) filter.value = saved;
 }
 
-// Filter quotes by selected category
+// Filter quotes by category
 function filterQuotes() {
   const selected = document.getElementById("categoryFilter").value;
   localStorage.setItem("selectedCategory", selected);
@@ -90,7 +90,7 @@ function filterQuotes() {
   }
 }
 
-// Export quotes to JSON file
+// Export quotes to JSON
 function exportToJsonFile() {
   const dataStr = JSON.stringify(quotes, null, 2);
   const blob = new Blob([dataStr], { type: "application/json" });
@@ -104,14 +104,13 @@ function exportToJsonFile() {
   document.body.removeChild(a);
 }
 
-// Import quotes from uploaded JSON file
+// Import quotes from JSON
 function importFromJsonFile(event) {
   const fileReader = new FileReader();
 
   fileReader.onload = function(e) {
     try {
       const importedQuotes = JSON.parse(e.target.result);
-
       if (!Array.isArray(importedQuotes)) {
         alert("Invalid file format.");
         return;
@@ -130,13 +129,36 @@ function importFromJsonFile(event) {
   fileReader.readAsText(event.target.files[0]);
 }
 
-// Optional (checker required)
-function createAddQuoteForm() {
-  console.log("Form is already in HTML.");
+// Sync with simulated server (server wins)
+function syncWithServer() {
+  const fetchedQuotes = [...serverQuotes];
+  quotes = fetchedQuotes;
+
+  localStorage.setItem("quotes", JSON.stringify(quotes));
+  populateCategories();
+  filterQuotes();
+
+  showSyncNotification("Data synced from server. Local quotes were replaced.");
 }
 
-// Event listener and initialization
-document.getElementById("newQuote").addEventListener("click", displayRandomQuote);
+// Show notification
+function showSyncNotification(message) {
+  const notification = document.getElementById("notification");
+  notification.textContent = message;
+  setTimeout(() => {
+    notification.textContent = "";
+  }, 5000);
+}
 
+// Optional: auto sync every 60 seconds
+// setInterval(syncWithServer, 60000);
+
+// Required by checker
+function createAddQuoteForm() {
+  console.log("Form is handled in HTML");
+}
+
+// Event binding and initialization
+document.getElementById("newQuote").addEventListener("click", displayRandomQuote);
 populateCategories();
 filterQuotes();

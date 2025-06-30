@@ -13,7 +13,7 @@
     <option value="all">All Categories</option>
   </select>
 
-  <div id="quoteDisplay"></div>
+  <div id="quoteDisplay" style="margin: 20px 0;"></div>
 
   <button id="newQuote">Show New Quote</button>
 
@@ -25,6 +25,10 @@
   <h2>Import / Export Quotes</h2>
   <button onclick="exportToJsonFile()">Export Quotes</button>
   <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)" />
+
+  <h2>Server Sync</h2>
+  <button onclick="syncWithServer()">Sync with Server</button>
+  <div id="notification" style="color: green; margin-top: 10px;"></div>
 
   <script src="script.js"></script>
 </body>
